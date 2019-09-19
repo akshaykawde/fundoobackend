@@ -5,7 +5,7 @@ import javax.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class ForgotDto 
+public class ForgetDto 
 {	
 	@NotNull
 	private String emailId;

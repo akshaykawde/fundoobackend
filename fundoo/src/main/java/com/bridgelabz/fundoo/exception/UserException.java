@@ -1,7 +1,5 @@
 package com.bridgelabz.fundoo.exception;
-
 import org.springframework.web.bind.annotation.ResponseStatus;
-
 @ResponseStatus
 public class UserException extends RuntimeException{
 	

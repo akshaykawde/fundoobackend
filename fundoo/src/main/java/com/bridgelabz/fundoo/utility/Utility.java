@@ -23,19 +23,21 @@ public class Utility {
 	@Autowired
 	TokenGenerator tokenUtil;
 	
-	
-	private String fromEmail;
-	private String password;
+//	@Value("${spring.mail.EmailId}")
+//	private String fromEmail;
+//
+//	@Value("${spring.mail.EmailPassword}")
+//	private String password;
 
 	public void send(String toEmail, String subject, String link) {
 		final String fromEmail = "akshay.skawde@gmail.com";
-		final String password = "akshay.skawde@070196"; 
+		final String password = "akshay.skawde@070196";
 		Properties props = new Properties();
 		props.put("mail.smtp.host", "smtp.gmail.com");
 		props.put("mail.smtp.port", "587");
 		props.put("mail.smtp.auth", "true");
 		props.put("mail.smtp.starttls.enable", "true");
-		System.out.println(fromEmail+"           "+password);
+//		System.out.println(fromEmail+"           "+password);
 		// to check email sender credentials are valid or not
 		Authenticator auth = new Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {

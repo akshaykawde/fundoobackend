@@ -1,29 +1,20 @@
 package com.bridgelabz.fundoo.user.model;
 
-import java.time.LocalDateTime;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
-import org.springframework.asm.Label;
-
 import com.bridgelabz.fundoo.label.model.LabelModel;
-import com.bridgelabz.fundoo.notes.model.Note;
+import com.bridgelabz.fundoo.notes.model.NotesModel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Data;
-
 @Entity
 @Table
-public class User {
+public class UserModel {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,13 +26,13 @@ public class User {
 	private String mobileNum;
 	private boolean isVerify;
 
-	public User() {
+	public UserModel() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public User(long userId, String firstName, String lastName, String emailId, String password, String mobileNum,
-			boolean isVerify, List<Note> notes) {
+	public UserModel(long userId, String firstName, String lastName, String emailId, String password, String mobileNum,
+			boolean isVerify, List<NotesModel> notesModels) {
 		super();
 		this.userId = userId;
 		this.firstName = firstName;
@@ -51,13 +42,13 @@ public class User {
 		this.mobileNum = mobileNum;
 		this.isVerify = isVerify;
 
-		this.notes = notes;
+		this.notesModels = notesModels;
 	}
 
 	@Override
 	public String toString() {
 		return "User [userId=" + userId + ", firstName=" + firstName + ", lastName=" + lastName + ", emailId=" + emailId
-				+ ", password=" + password + ", mobileNum=" + mobileNum + ", isVerify=" + isVerify + ", notes=" + notes
+				+ ", password=" + password + ", mobileNum=" + mobileNum + ", isVerify=" + isVerify + ", notes=" + notesModels
 				+ "]";
 	}
 
@@ -119,14 +110,14 @@ public class User {
 
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
-	private List<Note> notes;
+	private List<NotesModel> notesModels;
 
-	public List<Note> getNotes() {
-		return notes;
+	public List<NotesModel> getNotes() {
+		return notesModels;
 	}
 
-	public void setNotes(List<Note> notes) {
-		this.notes = notes;
+	public void setNotes(List<NotesModel> notesModels) {
+		this.notesModels = notesModels;
 	}
 
 	@JsonIgnore

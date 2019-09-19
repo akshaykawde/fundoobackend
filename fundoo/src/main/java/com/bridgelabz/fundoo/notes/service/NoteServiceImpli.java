@@ -3,30 +3,27 @@ package com.bridgelabz.fundoo.notes.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import org.hibernate.loader.plan.exec.process.spi.ReturnReader;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.ls.LSInput;
 
+import com.bridgelabz.fundoo.elasticSearch.elasticSearch;
 import com.bridgelabz.fundoo.exception.UserException;
 import com.bridgelabz.fundoo.notes.dto.NotesDto;
-
-import com.bridgelabz.fundoo.notes.model.Note;
+import com.bridgelabz.fundoo.notes.model.NotesModel;
 import com.bridgelabz.fundoo.notes.repository.NotesRepo;
 import com.bridgelabz.fundoo.response.Response;
-import com.bridgelabz.fundoo.user.model.User;
-import com.bridgelabz.fundoo.user.repository.UserRepo;
+import com.bridgelabz.fundoo.user.model.UserModel;
+import com.bridgelabz.fundoo.user.repository.UserRepository;
 import com.bridgelabz.fundoo.utility.ResponseHelper;
 import com.bridgelabz.fundoo.utility.TokenGenerator;
 import com.bridgelabz.fundoo.utility.Utility;
 
 @Service
-public class NoteServiceImplimentation implements NoteService {
+public class NoteServiceImpli implements NoteService {
 	@Autowired
-	private UserRepo userRepositary;
+	private UserRepository userRepositary;
 
 	@Autowired
 	private NotesRepo noteRepository;
@@ -34,6 +31,9 @@ public class NoteServiceImplimentation implements NoteService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
+	@Autowired
+	private elasticSearch elasticSearch;
+	
 	@Autowired
 	private ModelMapper modelMapper;
 
@@ -50,49 +50,53 @@ public class NoteServiceImplimentation implements NoteService {
 	private TokenGenerator tokenUtil;
 
 	@Override
-	public Response onCrete(NotesDto notesDto, String token) {
+	public Response createNote(NotesDto notesDto, String token) {
 		long id = tokenUtil.decodeToken(token);
 		if (notesDto.getTitle().isEmpty() && notesDto.getDiscription().isEmpty()) {
 			throw new UserException("Title and Discription is empty");
 		}
-		Note note = modelMapper.map(notesDto, Note.class);
-		Optional<User> user = userRepositary.findByuserId(id);
-		user.get().getNotes().add(note);
-		note.setUserId(id);
-		noteRepository.save(note);
+		NotesModel notesModel = modelMapper.map(notesDto, NotesModel.class);
+		Optional<UserModel> userModel = userRepositary.findByuserId(id);
+		userModel.get().getNotes().add(notesModel);
+		notesModel.setUserId(id);
+		noteRepository.save(notesModel);
 		// userRepositary.save(user.get());
+		elasticSearch.createNote(notesModel);
+		//user to create json database of elasticSearch
 		Response response = ResponseHelper.statusResponse(200, " note created successfully");
 		return response;
 	}
 
 	@Override
-	public Response update(NotesDto notesDto, String token, Long noteID) {
+	public Response updateNote(NotesDto notesDto, String token, Long noteID) {
 		if (notesDto.getTitle().isEmpty() && notesDto.getDiscription().isEmpty()) {
 			throw new UserException("Title and Discription is empty");
 		}
 		long id = tokenUtil.decodeToken(token);
 		// Note notes=NotesRepo.findByIdAndUserId(noteID, id);
-		Note notes = noteRepository.findByNoteIdAndUserId(noteID, id);
-		notes.setTitle(notesDto.getTitle());
-		notes.setDiscription(notesDto.getDiscription());
-		noteRepository.save(notes);
+		NotesModel notesModels = noteRepository.findByNoteIdAndUserId(noteID, id);
+		notesModels.setTitle(notesDto.getTitle());
+		notesModels.setDiscription(notesDto.getDiscription());
+		noteRepository.save(notesModels);
+		elasticSearch.updateNote(notesModels);
+		//user to update json database of elasticSearch
 		Response response = ResponseHelper.statusResponse(200, "notes updated");
 		return response;
 	}
 
 	@Override
-	public Response trash(String token, long noteId) {
+	public Response noteIntrash(String token, long noteId) {
 		long userId = tokenUtil.decodeToken(token);
-		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
-		if (notes.isTrash() == false) {
-			notes.setTrash(true);
-			noteRepository.save(notes);
+		NotesModel notesModels = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (notesModels.isTrash() == false) {
+			notesModels.setTrash(true);
+			noteRepository.save(notesModels);
 			Response response = ResponseHelper.statusResponse(200, "Note is in trash");
 			return response;
 
 		} else {
-			notes.setTrash(false);
-			noteRepository.save(notes);
+			notesModels.setTrash(false);
+			noteRepository.save(notesModels);
 			Response response = ResponseHelper.statusResponse(200, "note is untrash!!");
 			return response;
 		}
@@ -100,18 +104,18 @@ public class NoteServiceImplimentation implements NoteService {
 	}
 
 	@Override
-	public Response pin(String token, long noteId) {
+	public Response noteIsPin(String token, long noteId) {
 		long userId = tokenUtil.decodeToken(token);
-		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
-		if (notes.isPin() == false) {
-			notes.setPin(true);
-			noteRepository.save(notes);
+		NotesModel notesModels = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (notesModels.isPin() == false) {
+			notesModels.setPin(true);
+			noteRepository.save(notesModels);
 			Response response = ResponseHelper.statusResponse(200, "Note is pined");
 			return response;
 
 		} else {
-			notes.setPin(false);
-			noteRepository.save(notes);
+			notesModels.setPin(false);
+			noteRepository.save(notesModels);
 			Response response = ResponseHelper.statusResponse(200, "note is unpined!!");
 			return response;
 		}
@@ -119,18 +123,18 @@ public class NoteServiceImplimentation implements NoteService {
 	}
 
 	@Override
-	public Response archive(String token, long noteId) {
+	public Response noteArchive(String token, long noteId) {
 		long userId = tokenUtil.decodeToken(token);
-		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
-		if (notes.isArchive() == false) {
-			notes.setArchive(true);
-			noteRepository.save(notes);
+		NotesModel notesModels = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (notesModels.isArchive() == false) {
+			notesModels.setArchive(true);
+			noteRepository.save(notesModels);
 			Response response = ResponseHelper.statusResponse(200, "Note is archive");
 			return response;
 
 		} else {
-			notes.setArchive(false);
-			noteRepository.save(notes);
+			notesModels.setArchive(false);
+			noteRepository.save(notesModels);
 			Response response = ResponseHelper.statusResponse(200, "note is unarchive");
 			return response;
 		}
@@ -138,19 +142,19 @@ public class NoteServiceImplimentation implements NoteService {
 	}
 
 	@Override
-	public List<Note> getAllNotes(String token) {
+	public List<NotesModel> getAllNotes(String token) {
 		long userId = tokenUtil.decodeToken(token);
-		User user = userRepositary.findById(userId).get();
-		return (List<Note>) user.getNotes();
+		UserModel userModel = userRepositary.findById(userId).get();
+		return (List<NotesModel>) userModel.getNotes();
 	}
 
 	@Override
 	public List<NotesDto> getAllArchive(String token) {
 		long userId = tokenUtil.decodeToken(token);
-		List<Note> notes = (List<Note>) noteRepository.findByUserId(userId);
+		List<NotesModel> notesModels = (List<NotesModel>) noteRepository.findByUserId(userId);
 
 		List<NotesDto> listNotes = new ArrayList<NotesDto>();
-		for (Note userNotes : notes) {
+		for (NotesModel userNotes : notesModels) {
 			NotesDto noteDto = modelMapper.map(userNotes, NotesDto.class);
 			if (userNotes.isArchive() == true && userNotes.isTrash() == false) {
 				listNotes.add(noteDto);
@@ -163,9 +167,9 @@ public class NoteServiceImplimentation implements NoteService {
 	@Override
 	public List<NotesDto> getAllTrash(String token) {
 		long userId = tokenUtil.decodeToken(token);
-		List<Note> notes = (List<Note>) noteRepository.findByUserId(userId);
+		List<NotesModel> notesModels = (List<NotesModel>) noteRepository.findByUserId(userId);
 		List<NotesDto> listNotes = new ArrayList<NotesDto>();
-		for (Note userNotes : notes) {
+		for (NotesModel userNotes : notesModels) {
 			NotesDto notesDto = modelMapper.map(userNotes, NotesDto.class);
 			if (userNotes.isTrash() == true) {
 				listNotes.add(notesDto);
@@ -177,9 +181,9 @@ public class NoteServiceImplimentation implements NoteService {
 	@Override
 	public List<NotesDto> getAllPinedNotes(String token) {
 		long userId = tokenUtil.decodeToken(token);
-		List<Note> User = noteRepository.findByUserId(userId);
+		List<NotesModel> User = noteRepository.findByUserId(userId);
 		List<NotesDto> list = new ArrayList<NotesDto>();
-		for (Note userNote : User) {
+		for (NotesModel userNote : User) {
 			NotesDto notesDto = modelMapper.map(userNote, NotesDto.class);
 			if (userNote.isPin() == true) {
 				list.add(notesDto);
@@ -189,50 +193,33 @@ public class NoteServiceImplimentation implements NoteService {
 	}
 
 	@Override
-	public Response temporarydelete(String token, long noteId) {
-		long userId = tokenUtil.decodeToken(token);
-		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
-		if (notes.isTrash() == false) {
-			notes.setTrash(true);
-			noteRepository.save(notes);
-			Response response = ResponseHelper.statusResponse(200, "Note is in trash");
-			return response;
-
-		} else {
-			notes.setTrash(false);
-			noteRepository.save(notes);
-			Response response = ResponseHelper.statusResponse(200, "note is untrash!!");
-			return response;
-		}
-	}
-
-	@Override
 	public Response setColor(String token, long noteId, String color) {
 		long userId = tokenUtil.decodeToken(token);
-		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
-		if (notes == null) {
+		NotesModel notesModels = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (notesModels == null) {
 			throw new UserException(100, "invalid note or not exist");
 		}
-		notes.setSetcolour(color);
-		noteRepository.save(notes);
+		notesModels.setSetcolour(color);
+		noteRepository.save(notesModels);
 		Response response = ResponseHelper.statusResponse(200, "colour change");
 		return response;
 
 	}
 
-	public Response permanentdelete(String token, long noteId) {
+	public Response permanentDelete(String token, long noteId) {
 		long userId = tokenUtil.decodeToken(token);
-		Optional<User> user = userRepositary.findById(userId);
-		Note note = noteRepository.findById(noteId).orElseThrow();
-		System.out.println(note);
-		if (note.isTrash() == true) {
-			((List<Note>) user.get().getNotes()).remove(note);
-			userRepositary.save(user.get());
-			noteRepository.delete(note);
+		Optional<UserModel> userModel = userRepositary.findById(userId);
+		NotesModel notesModel = noteRepository.findById(noteId).orElseThrow();
+		System.out.println(notesModel);
+		if (notesModel.isTrash() == true) {
+			((List<NotesModel>) userModel.get().getNotes()).remove(notesModel);
+			userRepositary.save(userModel.get());
+			noteRepository.delete(notesModel);
+			elasticSearch.deleteNote(noteId);
 			Response response = ResponseHelper.statusResponse(200, "note deleted sucessfuly");
 			return response;
 		} else {
-			Response response = ResponseHelper.statusResponse(100, "failed to delet");
+			Response response = ResponseHelper.statusResponse(100, "Note is deleted only if, when it is in Trash");
 			return response;
 		}
 

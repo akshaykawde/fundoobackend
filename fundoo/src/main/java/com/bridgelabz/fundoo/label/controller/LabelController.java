@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bridgelabz.fundoo.label.dto.Labeldto;
+import com.bridgelabz.fundoo.label.dto.LabelDto;
 import com.bridgelabz.fundoo.label.model.LabelModel;
 import com.bridgelabz.fundoo.label.service.LabelService;
 import com.bridgelabz.fundoo.notes.controller.NotesController;
-import com.bridgelabz.fundoo.notes.model.Note;
+import com.bridgelabz.fundoo.notes.model.NotesModel;
 import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.utility.Utility;
 
@@ -33,32 +33,32 @@ import ch.qos.logback.classic.Logger;
 @RestController
 @CrossOrigin(allowedHeaders = "*", origins = "*")
 @RequestMapping("/user/label")
-public class Labelcontroller {
-	Logger logger = (Logger) LoggerFactory.getLogger(NotesController.class);	
+public class LabelController {
+	
 	@Autowired
 	private LabelService labelservice;
 	
 	@PostMapping("/create")
-	ResponseEntity<Response>createLabel(@RequestBody Labeldto labelDto,@RequestHeader String token)	
+	ResponseEntity<Response>createLabel(@RequestBody LabelDto labelDto,@RequestHeader String token)	
 	{
 		Response statusResponse = labelservice.createLabel(labelDto, token);
 		return new ResponseEntity<Response>(statusResponse,HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/delete")
-	ResponseEntity<Response>createLabel(@RequestParam Long labelId,@RequestHeader String token)	
+	ResponseEntity<Response>deleteLabel(@RequestParam Long labelId,@RequestHeader String token)	
 	{
 		Response statusResponse = labelservice.deleteLabel(labelId, token);
 		return new ResponseEntity<Response>(statusResponse,HttpStatus.OK);
 	}
 	
 	
-//	@PutMapping("/update")
-//	ResponseEntity<Response>updateLabel(@RequestParam Labeldto labelDto,@RequestHeader String token)	
-//	{
-//		Response statusResponse = labelservice.updateLabel(labelDto, token);
-//		return new ResponseEntity<Response>(statusResponse,HttpStatus.OK);
-//	}
+	@PutMapping("/update")
+	ResponseEntity<Response>updateLabel(@RequestBody LabelDto labelDto,@RequestHeader String token,@RequestParam Long labelId)	
+	{
+		Response statusResponse = labelservice.updateLabel(labelId,labelDto, token);
+		return new ResponseEntity<Response>(statusResponse,HttpStatus.OK);
+	}
 	
 	@GetMapping("/AllLabel")
 	public List<LabelModel>getAllLabel(@RequestHeader String token)

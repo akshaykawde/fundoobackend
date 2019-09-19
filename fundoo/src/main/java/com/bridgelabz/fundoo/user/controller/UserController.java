@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bridgelabz.fundoo.exception.UserException;
 import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.response.ResponseToken;
-import com.bridgelabz.fundoo.user.dto.ForgotDto;
-import com.bridgelabz.fundoo.user.dto.LoginDTO;
-import com.bridgelabz.fundoo.user.dto.RegisterDto;
-import com.bridgelabz.fundoo.user.repository.UserRepo;
+import com.bridgelabz.fundoo.user.dto.ForgetDto;
+import com.bridgelabz.fundoo.user.dto.LoginDto;
+import com.bridgelabz.fundoo.user.dto.RegistrationDto;
+import com.bridgelabz.fundoo.user.repository.UserRepository;
 import com.bridgelabz.fundoo.user.service.UserService;
 
 @CrossOrigin(allowedHeaders = "*", origins = "*")
@@ -30,44 +30,44 @@ public class UserController {
 	UserService userService;
 
 	@Autowired
-	UserRepo userRepo;
+	UserRepository userRepository;
 
 	@PostMapping("/register")
-	public ResponseEntity<Response> register(@RequestBody RegisterDto userDto)
+	public ResponseEntity<Response> userRegistration(@RequestBody RegistrationDto userDto)
 			throws UserException, UnsupportedEncodingException {
-		Response response = userService.onRegister(userDto);
-		System.out.println(response);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		Response userResponse = userService.userRegistration(userDto);
+		System.out.println(userResponse);
+		return new ResponseEntity<>(userResponse, HttpStatus.OK);
 	}
 	@PostMapping("/login")
-	public ResponseEntity<ResponseToken> onLogin(@RequestBody LoginDTO loginDTO)
+	public ResponseEntity<ResponseToken> userLogin(@RequestBody LoginDto LoginDto)
 			throws UserException, UnsupportedEncodingException {
-		ResponseToken response = userService.onLogin(loginDTO);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		ResponseToken userResponse = userService.userLogin(LoginDto);
+		return new ResponseEntity<>(userResponse, HttpStatus.OK);
 	}
 
 	// to verify
 	@GetMapping(value = "/{token}")
-	public ResponseEntity<Response> emailValidation(@PathVariable String token) throws UserException {
-		Response response = userService.validateEmailId(token);
-		return new ResponseEntity<Response>(response, HttpStatus.OK);
+	public ResponseEntity<Response> userEmailValidation(@PathVariable String token) throws UserException {
+		Response userResponse = userService.userEmailValidation(token);
+		return new ResponseEntity<Response>(userResponse, HttpStatus.OK);
 	}
 
-	@PostMapping("/forgotpassword")
-	public ResponseEntity<Response> forgotPassword(@RequestBody ForgotDto emailDto)
+	@PostMapping("/forgetpassword")
+	public ResponseEntity<Response> userForgetPassword(@RequestBody ForgetDto emailDto)
 			throws UnsupportedEncodingException, UserException, MessagingException {
 		System.out.println(emailDto);
-		Response status = userService.forgetPassword(emailDto);
-		return new ResponseEntity<Response>(status, HttpStatus.OK);
+		Response userResponse = userService.userForgetPassword(emailDto);
+		return new ResponseEntity<Response>(userResponse, HttpStatus.OK);
 		
 
 	}
 
-	@PutMapping(value = "/resetpassword")
-	public ResponseEntity<?> resetpassword(@RequestParam String token, @RequestParam("password") String password) {
+	@PutMapping(value = "/resetPassword")
+	public ResponseEntity<?> userResetPassword(@RequestParam String token, @RequestParam("password") String password) {
 		{
-			Response response = userService.resetPassword(token, password);
-			return new ResponseEntity<Response>(response, HttpStatus.OK);
+			Response userResponse = userService.userResetPassword(token, password);
+			return new ResponseEntity<Response>(userResponse, HttpStatus.OK);
 
 		}
 

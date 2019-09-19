@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class LoginDTO {
+public class LoginDto {
 	@NotNull
 	@Email(regexp = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.(?:[A-Z]{2,}|com|org))+$")
 	private String emailId;

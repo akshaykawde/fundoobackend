@@ -5,20 +5,17 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 @Entity
-public class Note
+public class NotesModel
 {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long noteId;
-	
 	private String title;
 	private String Discription;
 	boolean isTrash;
 	boolean isArchive;
 	boolean isPin;
 	private String setcolour;
-
-
 
 	public String getSetcolour() {
 		return setcolour;

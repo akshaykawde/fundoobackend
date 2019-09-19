@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class Labeldto {
+public class LabelDto {
 private String labelName;
 
 

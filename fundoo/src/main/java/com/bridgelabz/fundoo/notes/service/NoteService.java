@@ -6,24 +6,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.bridgelabz.fundoo.notes.dto.NotesDto;
 
-import com.bridgelabz.fundoo.notes.model.Note;
+import com.bridgelabz.fundoo.notes.model.NotesModel;
 import com.bridgelabz.fundoo.response.Response;
 
 public interface NoteService {
 
-	Response update(NotesDto notesDto, String token, Long noteId);
+	Response updateNote(NotesDto notesDto, String token, Long noteId);
 
-	List<Note> getAllNotes(String token);
+	List<NotesModel> getAllNotes(String token);
 
-	Response trash(String token, long noteId);
+	Response noteIntrash(String token, long noteId);
 
-	Response pin(String token, long noteId);
+	Response noteIsPin(String token, long noteId);
 
-	Response archive(String token, long noteId);
+	Response noteArchive(String token, long noteId);
 
-	Response temporarydelete(String token, long noteId);
-
-	Response onCrete(NotesDto notesDto, String token);
+	Response createNote(NotesDto notesDto, String token);
 
 	List<NotesDto> getAllArchive(String token);
 
@@ -33,6 +31,6 @@ public interface NoteService {
 
 	List<NotesDto> getAllPinedNotes(String token);
 
-	Response permanentdelete(String token, long noteId);
+	Response permanentDelete(String token, long noteId);
 
 }

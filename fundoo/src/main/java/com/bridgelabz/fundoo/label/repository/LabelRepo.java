@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.bridgelabz.fundoo.label.dto.Labeldto;
+import com.bridgelabz.fundoo.label.dto.LabelDto;
 import com.bridgelabz.fundoo.label.model.LabelModel;
 
 
