@@ -1,5 +1,4 @@
 package com.bridgelabz.fundoo.configuration;
-
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -17,18 +16,22 @@ public class ApplicationConfiguration {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-
+	
 	@Bean
 	public ModelMapper modelMapper() {
 		ModelMapper modelMapper = new ModelMapper();
 		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 		return modelMapper;
 	}
+    
+	
+	
+	
+	//cofig 
 	@Bean
-	   public RestHighLevelClient client() {
-	       RestHighLevelClient client = new RestHighLevelClient(
-	               RestClient.builder(new HttpHost("localhost", 9200, "http")));
-	       return client;
-	   }
-
+	public RestHighLevelClient client() {
+		RestHighLevelClient client = new RestHighLevelClient(
+		RestClient.builder(new HttpHost("localhost", 9200, "http")));
+		return client;
+	}
 }

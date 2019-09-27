@@ -16,8 +16,6 @@ public interface LabelService {
 
 	Response deleteLabel(long labelId, String token);
 
-//	Response updateLabel(Labeldto labelDto, String token);
-
 	 List<LabelModel> getAllLabel(String token);
 
 	Response updateLabel(Long labelId, LabelDto labelDto, String token);

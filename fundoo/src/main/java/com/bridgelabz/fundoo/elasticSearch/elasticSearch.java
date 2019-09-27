@@ -10,5 +10,4 @@ public interface elasticSearch {
 	Response updateNote (NotesModel noteModel);
 	Response deleteNote (long noteId);
 	List<NotesModel> searchData(String query, String token);
-
-}
+	}

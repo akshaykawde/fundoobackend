@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bridgelabz.fundoo.elasticSearch.elasticSearch;
 import com.bridgelabz.fundoo.notes.dto.NotesDto;
 
 import com.bridgelabz.fundoo.notes.model.NotesModel;
@@ -29,6 +28,9 @@ public class NotesController {
 	@Autowired
 	private NoteService noteService;
 
+	@Autowired
+	private com.bridgelabz.fundoo.elasticSearch.elasticSearch elasticSearch;
+
 	@PostMapping("/create")
 	public ResponseEntity<Response> createNote(@RequestBody NotesDto notesDto, @RequestHeader String token) {
 		Response responseStatus = noteService.createNote(notesDto, token);
@@ -36,7 +38,8 @@ public class NotesController {
 	}
 
 	@PutMapping("/update")
-	public ResponseEntity<Response> updateNote(@RequestBody NotesDto notesDto, String token,@RequestParam Long noteId) {
+	public ResponseEntity<Response> updateNote(@RequestBody NotesDto notesDto, String token,
+			@RequestParam Long noteId) {
 		Response responseStatus = noteService.updateNote(notesDto, token, noteId);
 		return new ResponseEntity<Response>(responseStatus, HttpStatus.OK);
 	}
@@ -58,7 +61,7 @@ public class NotesController {
 		Response responseStatus = noteService.noteIsPin(token, noteId);
 		return new ResponseEntity<Response>(responseStatus, HttpStatus.OK);
 	}
-	
+
 	@PutMapping("/archive")
 	public ResponseEntity<Response> noteArchive(@RequestHeader String token, @RequestParam long noteId) {
 		Response responseStatus = noteService.noteArchive(token, noteId);
@@ -94,14 +97,11 @@ public class NotesController {
 		Response responseStatus = noteService.setColor(token, noteId, color);
 		return new ResponseEntity<Response>(responseStatus, HttpStatus.OK);
 	}
-	
-	/*
-	 * @GetMapping("/searchNote") public ResponseEntity<List<NotesModel>>
-	 * searchNote(@RequestHeader String token,@RequestParam String query){
-	 * List<NotesModel> response=elasticSearch.searchData(query, token); return new
-	 * ResponseEntity<>(response,HttpStatus.OK);
-	 * 
-	 * }
-	 */
+
+	@GetMapping("/searchNote")
+	public List<NotesModel> elasticSearch(@RequestHeader String token, @RequestParam String query) {
+		List<NotesModel> response = elasticSearch.searchData(query, token);
+		return response;
+	}
 
 }

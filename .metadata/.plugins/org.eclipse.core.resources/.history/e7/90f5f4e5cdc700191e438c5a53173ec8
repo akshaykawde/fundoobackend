@@ -1,0 +1,181 @@
+package com.bridgelabz.fundoo.notes.service;
+
+import java.lang.StackWalker.Option;
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.bridgelabz.fundoo.exception.UserException;
+import com.bridgelabz.fundoo.notes.dto.NotesDto;
+import com.bridgelabz.fundoo.notes.model.Note;
+import com.bridgelabz.fundoo.notes.repository.NotesRepo;
+import com.bridgelabz.fundoo.response.Response;
+import com.bridgelabz.fundoo.user.model.User;
+import com.bridgelabz.fundoo.user.repository.UserRepo;
+import com.bridgelabz.fundoo.utility.ResponseHelper;
+import com.bridgelabz.fundoo.utility.TokenGenerator;
+import com.bridgelabz.fundoo.utility.Utility;
+import com.google.common.base.Optional;
+
+@Service
+public class NoteServiceImplimentation implements NoteService {
+	@Autowired
+	private UserRepo userRepositary;
+
+	@Autowired
+	private NotesRepo noteRepository;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private ModelMapper modelMapper;
+
+	@Autowired
+	private Response response;
+
+	@Autowired
+	private Response statusResponse;
+
+	@Autowired
+	private Utility utility;
+
+	@Autowired
+	private TokenGenerator tokenUtil;
+
+	@Override
+	public Response onCrete(NotesDto notesDto, String token) {
+		long id = tokenUtil.decodeToken(token);
+		if (notesDto.getTitle().isEmpty() && notesDto.getDiscription().isEmpty()) {
+			throw new UserException("Title and Discription is empty");
+		}
+		Note note = modelMapper.map(notesDto, Note.class);
+		java.util.Optional<User> user=userRepositary.findByuserId(id);
+		note.setUserId(id);
+		note.setUserId(id);
+		noteRepository.save(note);
+		Response response = ResponseHelper.statusResponse(200, " note created successfully");
+		return response;
+	}
+
+	@Override
+	public Response update(NotesDto notesDto, String token, Long noteID) {
+		if (notesDto.getTitle().isEmpty() && notesDto.getDiscription().isEmpty()) {
+			throw new UserException("Title and Discription is empty");
+		}
+		long id = tokenUtil.decodeToken(token);
+		// Note notes=NotesRepo.findByIdAndUserId(noteID, id);
+		Note notes = noteRepository.findByNoteIdAndUserId(noteID, id);
+		notes.setTitle(notesDto.getTitle());
+		notes.setDiscription(notesDto.getDiscription());
+		noteRepository.save(notes);
+		Response response = ResponseHelper.statusResponse(200, "notes updated");
+		return response;
+	}
+
+	@Override
+	public Response trash(String token, long noteId) {
+		long userId = tokenUtil.decodeToken(token);
+		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (notes.isTrash() == false) {
+			notes.setTrash(true);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "Note is in trash");
+			return response;
+
+		} else {
+			notes.setTrash(false);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "note is untrash!!");
+			return response;
+		}
+
+	}
+
+	@Override
+	public Response pin(String token, long noteId) {
+		long userId = tokenUtil.decodeToken(token);
+		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (notes.isPin() == false) {
+			notes.setPin(true);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "Note is pined");
+			return response;
+
+		} else {
+			notes.setPin(false);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "note is unpined!!");
+			return response;
+		}
+
+	}
+
+	@Override
+	public Response archive(String token, long noteId) {
+		long userId = tokenUtil.decodeToken(token);
+		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (notes.isArchive() == false) {
+			notes.setArchive(true);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "Note is in trash");
+			return response;
+
+		} else {
+			notes.setArchive(false);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "note is untrash!!");
+			return response;
+		}
+
+	}
+
+	@Override
+	public Response delete(String token, long noteId) {
+		long userId = tokenUtil.decodeToken(token);
+		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (notes.isTrash() == false) {
+			notes.setTrash(true);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "Note is in trash");
+			return response;
+
+		} else {
+			notes.setTrash(false);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "note is untrash!!");
+			return response;
+		}
+
+	}
+
+	@Override
+	public List<Note> getAllNotes(String token) {
+		long id = tokenUtil.decodeToken(token);
+		User user = userRepositary.findById(id).get();
+		return (List<Note>) user.getNotes();
+	}
+
+	@Override
+	public Response temporarydelete(String token, long noteId) {
+		long userId = tokenUtil.decodeToken(token);
+		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (notes.isTrash() == false) {
+			notes.setTrash(true);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "Note is in trash");
+			return response;
+
+		} else {
+			notes.setTrash(false);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "note is untrash!!");
+			return response;
+		}
+
+	}
+
+}

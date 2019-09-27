@@ -15,13 +15,6 @@ import com.auth0.jwt.interfaces.Verification;
 @Component
 public class TokenGenerator {
 	public final String TOKEN_SECRET = "dfdfgfgfgfdsg";
-
-	/**
-	 * create token
-	 * 
-	 * @throws UnsupportedEncodingException
-	 * @throws IllegalArgumentException
-	 */
 	public String createToken(Long id) {
 		try {
 			// to set algorithm

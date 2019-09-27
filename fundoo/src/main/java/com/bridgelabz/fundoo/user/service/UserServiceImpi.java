@@ -1,16 +1,20 @@
 package com.bridgelabz.fundoo.user.service;
 
 import java.util.Optional;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import com.bridgelabz.fundoo.exception.UserException;
+
 import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.response.ResponseToken;
 import com.bridgelabz.fundoo.user.dto.ForgetDto;
 import com.bridgelabz.fundoo.user.dto.LoginDto;
 import com.bridgelabz.fundoo.user.dto.RegistrationDto;
+import com.bridgelabz.fundoo.user.model.MailModel;
 import com.bridgelabz.fundoo.user.model.UserModel;
 import com.bridgelabz.fundoo.user.repository.UserRepository;
 import com.bridgelabz.fundoo.utility.ResponseHelper;
@@ -19,6 +23,10 @@ import com.bridgelabz.fundoo.utility.Utility;
 
 @Service
 public class UserServiceImpi implements UserService {
+
+
+	@Autowired
+	private MailModel model;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -41,6 +49,7 @@ public class UserServiceImpi implements UserService {
 	@Override
 	public Response userRegistration(RegistrationDto userDto) {
 
+///		MailModel emailId1 = new MailModel();
 		String emailId = userDto.getEmailId();
 		UserModel modelInstance = modelMapper.map(userDto, UserModel.class);
 		System.out.println("user email is--->" + modelInstance.getEmailId());
@@ -55,13 +64,12 @@ public class UserServiceImpi implements UserService {
 		utility.send(emailId, "confirmation mail", utility.getUrl(userId));
 		statusResponse = ResponseHelper.statusResponse(200, "register successfully");
 		return statusResponse;
-
 	}
 
 	public ResponseToken userLogin(LoginDto LoginDto) {
 		System.out.println("Enter in the login");
 		Optional<UserModel> user = userRepository.findByEmailId(LoginDto.getEmailId());
-		System.out.println("user----->"+user.get());
+		System.out.println("user----->" + user.get());
 		ResponseToken response = new ResponseToken();
 		if (user.isPresent()) {
 			System.out.println("password..." + (LoginDto.getPassword()));
@@ -90,7 +98,8 @@ public class UserServiceImpi implements UserService {
 	@Override
 	public Response userResetPassword(String token, String password) {
 		long id = tokenUtil.decodeToken(token);
-		UserModel modelInstance = userRepository.findById(id).orElseThrow(() -> new UserException(404, "data not found"));
+		UserModel modelInstance = userRepository.findById(id)
+				.orElseThrow(() -> new UserException(404, "data not found"));
 		String encodedPassword = passwordEncoder.encode(password);
 		modelInstance.setPassword(encodedPassword);
 		modelInstance = userRepository.save(modelInstance);

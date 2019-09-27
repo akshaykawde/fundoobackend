@@ -15,7 +15,6 @@ public interface LabelRepo  extends JpaRepository<LabelModel, Long>
 	
 	Optional<LabelModel> findByUserIdAndLabelName(long userId, String labelName);
 
-
 	LabelModel findByLabelIdAndUserId(long labelId, long userId);
 
 	public List<LabelModel>findByUserId(long userId);
