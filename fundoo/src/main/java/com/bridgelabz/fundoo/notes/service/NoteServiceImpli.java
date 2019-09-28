@@ -16,6 +16,7 @@ import com.bridgelabz.fundoo.notes.repository.NotesRepo;
 import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.user.model.UserModel;
 import com.bridgelabz.fundoo.user.repository.UserRepository;
+import com.bridgelabz.fundoo.utility.RabbitMqSenderImpl;
 import com.bridgelabz.fundoo.utility.ResponseHelper;
 import com.bridgelabz.fundoo.utility.TokenGenerator;
 import com.bridgelabz.fundoo.utility.Utility;
@@ -45,6 +46,11 @@ public class NoteServiceImpli implements NoteService {
 
 	@Autowired
 	private Utility utility;
+	
+	
+	
+	@Autowired
+	private RabbitMqSenderImpl rabbitMqSenderImpl;
 
 	@Autowired
 	private TokenGenerator tokenUtil;
@@ -62,6 +68,7 @@ public class NoteServiceImpli implements NoteService {
 		noteRepository.save(notesModel);
 		// userRepositary.save(user.get());
 		elasticSearch.createNote(notesModel);
+		rabbitMqSenderImpl.sendMessageToQueue(notesModel);
 		//user to create json database of elasticSearch
 		Response response = ResponseHelper.statusResponse(200, " note created successfully");
 		return response;

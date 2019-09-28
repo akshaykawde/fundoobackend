@@ -26,6 +26,7 @@ public class Utility {
 //	private String password;
 
 	public void send(String toEmail, String subject, String link) {
+		System.out.println("fsdfdsfadsfasfd");
 		final String fromEmail = "akshay.skawde@gmail.com";
 		final String password = "akshay.skawde@070196";
 		Properties props = new Properties();
@@ -106,7 +107,7 @@ public class Utility {
 
 			msg.setFrom(new InternetAddress("no_reply@gmail.com", "NoReply"));
 
-			msg.setReplyTo(InternetAddress.parse("poojasparkle124@gmail.com", false));
+			msg.setReplyTo(InternetAddress.parse("akshay.skawde@gmail.com", false));
 
 			msg.setSubject(subject, "UTF-8");
 

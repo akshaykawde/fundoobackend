@@ -1,15 +1,25 @@
 package com.bridgelabz.fundoo.user.model;
 
+import java.io.Serializable;
+
 import org.springframework.stereotype.Component;
 
 @Component
-public class MailModel {
+public class MailModel implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private String to;
 	private String from;
 	private String subject;
 	private String body;
-	
-	
+
+	public MailModel() {
+		super();
+	}
 
 	public MailModel(String to, String from, String subject, String body) {
 		super();

@@ -8,7 +8,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.bridgelabz.fundoo.exception.UserException;
-
 import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.response.ResponseToken;
 import com.bridgelabz.fundoo.user.dto.ForgetDto;
@@ -17,6 +16,7 @@ import com.bridgelabz.fundoo.user.dto.RegistrationDto;
 import com.bridgelabz.fundoo.user.model.MailModel;
 import com.bridgelabz.fundoo.user.model.UserModel;
 import com.bridgelabz.fundoo.user.repository.UserRepository;
+import com.bridgelabz.fundoo.utility.RabbitMqSenderImpl;
 import com.bridgelabz.fundoo.utility.ResponseHelper;
 import com.bridgelabz.fundoo.utility.TokenGenerator;
 import com.bridgelabz.fundoo.utility.Utility;
@@ -24,15 +24,17 @@ import com.bridgelabz.fundoo.utility.Utility;
 @Service
 public class UserServiceImpi implements UserService {
 
-
-	@Autowired
-	private MailModel model;
-
 	@Autowired
 	private UserRepository userRepository;
 
 	@Autowired
 	private ModelMapper modelMapper;
+
+	@Autowired
+	private MailModel mailModel;
+
+	@Autowired
+	private RabbitMqSenderImpl rabbitMqSenderImpl;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -47,12 +49,9 @@ public class UserServiceImpi implements UserService {
 	private Utility utility;
 
 	@Override
-	public Response userRegistration(RegistrationDto userDto) {
-
-///		MailModel emailId1 = new MailModel();
+	public Response userRegistration(RegistrationDto userDto) throws Exception {
 		String emailId = userDto.getEmailId();
 		UserModel modelInstance = modelMapper.map(userDto, UserModel.class);
-		System.out.println("user email is--->" + modelInstance.getEmailId());
 		Optional<UserModel> userAlreadyPresent = userRepository.findByEmailId(modelInstance.getEmailId());
 		if (userAlreadyPresent.isPresent()) {
 			throw new UserException("emailExistError");
@@ -61,9 +60,17 @@ public class UserServiceImpi implements UserService {
 		modelInstance.setPassword(password);
 		modelInstance = userRepository.save(modelInstance);
 		Long userId = modelInstance.getUserId();
-		utility.send(emailId, "confirmation mail", utility.getUrl(userId));
-		statusResponse = ResponseHelper.statusResponse(200, "register successfully");
-		return statusResponse;
+		System.out.println("userId is------>" + userId);
+		String url;
+		url = Utility.getUrl(userId);
+		System.out.println(url);
+
+		mailModel.setBody(url);
+		mailModel.setTo(emailId);
+		mailModel.setFrom("akshay.skawde@gmail.com");
+//		rabbitMqSenderImpl.sendMessageToQueue(mailModel);
+//		rabbitMqSenderImpl.send(mailModel);
+		return ResponseHelper.statusResponse(200, "register successfully");
 	}
 
 	public ResponseToken userLogin(LoginDto LoginDto) {
@@ -87,8 +94,6 @@ public class UserServiceImpi implements UserService {
 		if (!userAlredyPresent.isPresent()) {
 			throw new UserException("user not found");
 		}
-		ResponseToken response = new ResponseToken();
-		long id = userAlredyPresent.get().getUserId();
 		utility.send(emailId, "confirmation mail", "http://localhost:4200/resetpassword");
 
 		return ResponseHelper.statusResponse(200, "check your Email");

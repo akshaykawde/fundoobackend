@@ -14,7 +14,7 @@ import com.bridgelabz.fundoo.user.model.UserModel;
 
 @Service
 public interface UserService {
-	Response userRegistration(RegistrationDto userDto) throws UserException, UnsupportedEncodingException;
+	Response userRegistration(RegistrationDto userDto) throws UserException, UnsupportedEncodingException, Exception;
 
 	ResponseToken userLogin(LoginDto LoginDto) throws UserException, UnsupportedEncodingException;
 
