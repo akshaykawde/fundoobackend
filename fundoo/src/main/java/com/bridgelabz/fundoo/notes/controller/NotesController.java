@@ -55,7 +55,7 @@ public class NotesController {
 //		Response responseStatus=noteService.untrash(token, noteId);
 //		return new ResponseEntity<Response>(responseStatus,HttpStatus.OK);
 //	}
-	///
+	/////
 	@PutMapping("/trash")
 	public ResponseEntity<Response> trash(@RequestHeader String token, @RequestParam long noteId) {
 		Response responseStatus = noteService.trash(token, noteId);
