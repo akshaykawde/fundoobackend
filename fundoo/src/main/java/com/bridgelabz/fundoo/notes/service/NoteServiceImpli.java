@@ -3,8 +3,14 @@ package com.bridgelabz.fundoo.notes.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import javax.annotation.Resource;
+import javax.mail.Message;
+import javax.validation.constraints.Email;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +20,14 @@ import com.bridgelabz.fundoo.notes.dto.NotesDto;
 import com.bridgelabz.fundoo.notes.model.NotesModel;
 import com.bridgelabz.fundoo.notes.repository.NotesRepo;
 import com.bridgelabz.fundoo.response.Response;
+import com.bridgelabz.fundoo.user.model.MailModel;
 import com.bridgelabz.fundoo.user.model.UserModel;
 import com.bridgelabz.fundoo.user.repository.UserRepository;
 import com.bridgelabz.fundoo.utility.RabbitMqSenderImpl;
 import com.bridgelabz.fundoo.utility.ResponseHelper;
 import com.bridgelabz.fundoo.utility.TokenGenerator;
 import com.bridgelabz.fundoo.utility.Utility;
+import com.sun.mail.handlers.message_rfc822;
 
 @Service
 public class NoteServiceImpli implements NoteService {
@@ -34,7 +42,7 @@ public class NoteServiceImpli implements NoteService {
 
 	@Autowired
 	private elasticSearch elasticSearch;
-	
+
 	@Autowired
 	private ModelMapper modelMapper;
 
@@ -46,9 +54,7 @@ public class NoteServiceImpli implements NoteService {
 
 	@Autowired
 	private Utility utility;
-	
-	
-	
+
 	@Autowired
 	private RabbitMqSenderImpl rabbitMqSenderImpl;
 
@@ -69,7 +75,7 @@ public class NoteServiceImpli implements NoteService {
 		// userRepositary.save(user.get());
 		elasticSearch.createNote(notesModel);
 		rabbitMqSenderImpl.sendMessageToQueue(notesModel);
-		//user to create json database of elasticSearch
+		// user to create json database of elasticSearch
 		Response response = ResponseHelper.statusResponse(200, " note created successfully");
 		return response;
 	}
@@ -86,7 +92,7 @@ public class NoteServiceImpli implements NoteService {
 		notesModels.setDiscription(notesDto.getDiscription());
 		noteRepository.save(notesModels);
 		elasticSearch.updateNote(notesModels);
-		//user to update json database of elasticSearch
+		// user to update json database of elasticSearch
 		Response response = ResponseHelper.statusResponse(200, "notes updated");
 		return response;
 	}
@@ -231,6 +237,35 @@ public class NoteServiceImpli implements NoteService {
 		}
 
 	}
-	
-	
+
+	public Response addCollaborator(String token, long noteId, String emailId) {
+		MailModel collabEmail = new MailModel();
+		long userId = tokenUtil.decodeToken(token);
+		Optional<UserModel> user = userRepositary.findByEmailId(emailId);
+		Optional<UserModel> MainUser = userRepositary.findById(userId);
+		if (!user.isPresent())
+			throw new UserException("User is not present");
+		NotesModel note = noteRepository.findByNoteIdAndUserId(noteId, userId);
+
+		if (note == null)
+			throw new UserException("Note is empty");
+
+		if (user.get().getCollaboratedNotes().contains(note))
+			throw new UserException(-5, "Note is already collaborated");
+
+		user.get().getCollaboratedNotes().add(note);
+		note.getCollaboratedUser().add(user.get());
+
+		userRepositary.save(user.get());
+		noteRepository.save(note);
+
+		collabEmail.setFrom("akshay.skawde@gmail.com");
+		collabEmail.setTo(emailId);
+		collabEmail.setBody("Note from" + MainUser.get() + "collaborated to you,  Title:" + note.getTitle()
+				+ "Discription :" + note.getDiscription());
+		utility.sendEmail(collabEmail);
+		Response response = ResponseHelper.statusResponse(200, "collaborated");
+		return response;
+	}
+
 }

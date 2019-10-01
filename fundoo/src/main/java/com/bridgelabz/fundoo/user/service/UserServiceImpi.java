@@ -68,6 +68,7 @@ public class UserServiceImpi implements UserService {
 		mailModel.setBody(url);
 		mailModel.setTo(emailId);
 		mailModel.setFrom("akshay.skawde@gmail.com");
+		System.out.println(mailModel);
 //		rabbitMqSenderImpl.sendMessageToQueue(mailModel);
 //		rabbitMqSenderImpl.send(mailModel);
 		return ResponseHelper.statusResponse(200, "register successfully");

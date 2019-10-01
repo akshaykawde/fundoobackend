@@ -32,5 +32,6 @@ public interface NoteService {
 	List<NotesDto> getAllPinedNotes(String token);
 
 	Response permanentDelete(String token, long noteId);
-
+	
+	Response addCollaborator(String token,long noteId,String emailId);
 }

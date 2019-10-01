@@ -6,9 +6,24 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import org.springframework.stereotype.Component;
+
+import com.bridgelabz.fundoo.label.model.LabelModel;
+import com.bridgelabz.fundoo.user.model.UserModel;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
-public class NotesModel implements Serializable
-{
+public class NotesModel implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long noteId;
@@ -84,7 +99,29 @@ public class NotesModel implements Serializable
 	public void setUserId(long userId) {
 		this.userId = userId;
 	}
-	
-	
+
+	@JsonIgnore
+	@ManyToMany(cascade = CascadeType.ALL)
+	private List<LabelModel> listLabel;
+
+	public List<LabelModel> getListLabel() {
+		return listLabel;
+	}
+
+	public void setListLabel(List<LabelModel> listLabel) {
+		this.listLabel = listLabel;
+	}
+
+	@JsonIgnore
+	@ManyToMany(cascade = CascadeType.ALL)
+	private Set<UserModel> collaboratedUser;
+
+	public Set<UserModel> getCollaboratedUser() {
+		return collaboratedUser;
+	}
+
+	public void setCollaboratedUser(Set<UserModel> collaboratedUser) {
+		this.collaboratedUser = collaboratedUser;
+	}
 
 }

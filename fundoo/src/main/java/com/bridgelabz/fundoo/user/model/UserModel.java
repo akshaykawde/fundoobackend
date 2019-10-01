@@ -1,17 +1,21 @@
 package com.bridgelabz.fundoo.user.model;
 
 import java.util.List;
+import java.util.Set;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import com.bridgelabz.fundoo.label.model.LabelModel;
 import com.bridgelabz.fundoo.notes.model.NotesModel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+
 @Entity
 @Table
 public class UserModel {
@@ -48,8 +52,8 @@ public class UserModel {
 	@Override
 	public String toString() {
 		return "User [userId=" + userId + ", firstName=" + firstName + ", lastName=" + lastName + ", emailId=" + emailId
-				+ ", password=" + password + ", mobileNum=" + mobileNum + ", isVerify=" + isVerify + ", notes=" + notesModels
-				+ "]";
+				+ ", password=" + password + ", mobileNum=" + mobileNum + ", isVerify=" + isVerify + ", notes="
+				+ notesModels + "]";
 	}
 
 	public Long getUserId() {
@@ -132,6 +136,16 @@ public class UserModel {
 		this.label = label;
 	}
 
-	
+	@JsonIgnore
+	@ManyToMany(cascade = CascadeType.ALL)
+	private Set<NotesModel> collaboratedNotes;
+
+	public Set<NotesModel> getCollaboratedNotes() {
+		return collaboratedNotes;
+	}
+
+	public void setCollaboratedNotes(Set<NotesModel> collaboratedNotes) {
+		this.collaboratedNotes = collaboratedNotes;
+	}
 
 }

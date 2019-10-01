@@ -104,4 +104,9 @@ public class NotesController {
 		return response;
 	}
 
+	@PutMapping("/addCollaborator")
+	public ResponseEntity<Response> addCollaborator(@RequestHeader String token, @RequestParam String emailId, @RequestParam long noteId) {
+		Response responseStatus = noteService.addCollaborator(token,noteId,emailId);
+		return new ResponseEntity<Response>(responseStatus, HttpStatus.OK);
+	}
 }

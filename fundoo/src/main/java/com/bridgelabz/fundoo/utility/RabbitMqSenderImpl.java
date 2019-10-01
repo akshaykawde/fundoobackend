@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import com.bridgelabz.fundoo.user.model.MailModel;
 
 @Component
-public class RabbitMqSenderImpl{
+public class RabbitMqSenderImpl {
 
 	@Autowired
 	private AmqpTemplate rabbitTemplate;
@@ -42,8 +42,5 @@ public class RabbitMqSenderImpl{
 	public void sendObject(Object object) {
 		System.out.println("object send ");
 	}
-
-
-
 
 }
