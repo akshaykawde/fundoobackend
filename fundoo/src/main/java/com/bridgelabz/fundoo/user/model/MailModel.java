@@ -21,6 +21,7 @@ public class MailModel implements Serializable {
 		super();
 	}
 
+	
 	public MailModel(String to, String from, String subject, String body) {
 		super();
 		this.to = to;

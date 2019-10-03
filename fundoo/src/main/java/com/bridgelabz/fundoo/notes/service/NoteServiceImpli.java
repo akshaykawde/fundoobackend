@@ -268,4 +268,23 @@ public class NoteServiceImpli implements NoteService {
 		return response;
 	}
 
+	@Override
+	public Response deleteCollaborator(String token, long noteId, String emailId) {
+		long userId = tokenUtil.decodeToken(token);
+		Optional<UserModel> user = userRepositary.findByEmailId(emailId);
+		if (!user.isPresent())
+			throw new UserException(-4, "No user exist");
+
+		NotesModel note = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (note == null)
+			throw new UserException(-5, "Note is not exist");
+		user.get().getCollaboratedNotes().remove(note);
+		note.getCollaboratedUser().remove(user.get());
+		userRepositary.save(user.get());
+		noteRepository.save(note);
+		Response response = ResponseHelper.statusResponse(100, "status.note.trashError");
+		return response;
+
+	}
+
 }

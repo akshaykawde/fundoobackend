@@ -34,4 +34,6 @@ public interface NoteService {
 	Response permanentDelete(String token, long noteId);
 	
 	Response addCollaborator(String token,long noteId,String emailId);
+
+	Response deleteCollaborator(String token, long noteId,String emailId);
 }

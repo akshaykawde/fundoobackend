@@ -105,8 +105,15 @@ public class NotesController {
 	}
 
 	@PutMapping("/addCollaborator")
-	public ResponseEntity<Response> addCollaborator(@RequestHeader String token, @RequestParam String emailId, @RequestParam long noteId) {
-		Response responseStatus = noteService.addCollaborator(token,noteId,emailId);
+	public ResponseEntity<Response> addCollaborator(@RequestHeader String token, @RequestParam String emailId,
+			@RequestParam long noteId) {
+		Response responseStatus = noteService.addCollaborator(token, noteId, emailId);
+		return new ResponseEntity<Response>(responseStatus, HttpStatus.OK);
+	}
+
+	@PutMapping("/deleteCollaborator")
+	public ResponseEntity<Response> deleteCollaborator(@RequestHeader String token, @RequestParam long noteId,String emailId) {
+		Response responseStatus = noteService.deleteCollaborator(token, noteId,emailId);
 		return new ResponseEntity<Response>(responseStatus, HttpStatus.OK);
 	}
 }

@@ -3,6 +3,7 @@ package com.bridgelabz.fundoo.user.controller;
 import java.io.UnsupportedEncodingException;
 
 import javax.mail.MessagingException;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,7 @@ import com.bridgelabz.fundoo.user.dto.LoginDto;
 import com.bridgelabz.fundoo.user.dto.RegistrationDto;
 import com.bridgelabz.fundoo.user.repository.UserRepository;
 import com.bridgelabz.fundoo.user.service.UserService;
-
+@Valid
 @CrossOrigin(allowedHeaders = "*", origins = "*")
 @RestController
 @RequestMapping("/user")
@@ -37,15 +38,14 @@ public class UserController {
 	UserRepository userRepository;
 
 	@PostMapping("/register")
-	public ResponseEntity<Response> userRegistration(@RequestBody RegistrationDto userDto)
-			throws Exception {
+	public ResponseEntity<Response> userRegistration(@Valid @RequestBody RegistrationDto userDto) throws Exception {
 		Response userResponse = userService.userRegistration(userDto);
 		System.out.println(userResponse);
 		return new ResponseEntity<>(userResponse, HttpStatus.OK);
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<ResponseToken> userLogin(@RequestBody LoginDto LoginDto)
+	public ResponseEntity<ResponseToken> userLogin(@Valid @RequestBody LoginDto LoginDto)
 			throws UserException, UnsupportedEncodingException {
 		ResponseToken userResponse = userService.userLogin(LoginDto);
 		return new ResponseEntity<>(userResponse, HttpStatus.OK);
