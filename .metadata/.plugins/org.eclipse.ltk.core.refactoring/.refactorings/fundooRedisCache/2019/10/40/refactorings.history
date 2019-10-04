@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete element from project &apos;fundooRedisCache&apos;&#x0A;- Original project: &apos;fundooRedisCache&apos;&#x0A;- Original element: &apos;fundooRedisCache/src/main/java/com.bridgelabz.fundoo.label&apos;&#x0A;- Delete subpackages" description="Delete element" element1="/src\/main\/java&lt;com.bridgelabz.fundoo.label.service" element2="/src\/main\/java&lt;com.bridgelabz.fundoo.label.repository" element3="/src\/main\/java&lt;com.bridgelabz.fundoo.label.model" element4="/src\/main\/java&lt;com.bridgelabz.fundoo.label.dto" element5="/src\/main\/java&lt;com.bridgelabz.fundoo.label.controller" element6="/src\/main\/java&lt;com.bridgelabz.fundoo.label" elements="6" flags="589830" id="org.eclipse.jdt.ui.delete" resources="0" stamp="1570187140866" subPackages="true" version="1.0"/>
+</session>

@@ -1,0 +1,320 @@
+package com.bridgelabz.fundoo.notes.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+
+import com.bridgelabz.fundoo.exception.UserException;
+import com.bridgelabz.fundoo.notes.dto.NotesDto;
+
+import com.bridgelabz.fundoo.notes.model.Note;
+import com.bridgelabz.fundoo.notes.repository.NotesRepo;
+import com.bridgelabz.fundoo.response.Response;
+import com.bridgelabz.fundoo.user.model.User;
+import com.bridgelabz.fundoo.user.repository.UserRepo;
+import com.bridgelabz.fundoo.utility.RedisUtil;
+import com.bridgelabz.fundoo.utility.ResponseHelper;
+import com.bridgelabz.fundoo.utility.TokenGenerator;
+import com.bridgelabz.fundoo.utility.Utility;
+
+@Service
+public class NoteServiceImplimentation implements NoteService {
+	@Autowired
+	private UserRepo userRepositary;
+
+	@Autowired
+	private NotesRepo noteRepository;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private RedisUtil redisUtil;
+	
+	@Autowired
+	private ModelMapper modelMapper;
+
+	@Autowired
+	private Response response;
+
+	@Autowired
+	private Response statusResponse;
+
+	@Autowired
+	private Utility utility;
+
+	@Autowired
+	private TokenGenerator tokenUtil;
+	
+	@Autowired
+	private RedisTemplate<String,Object> redisTemplate;
+	
+	@Value("${Key}")
+	private String key;
+
+	@Value("${Value}")
+	private String value;
+	
+	@Override
+	public Response onCrete(NotesDto notesDto) 
+	{
+	
+		String Data=notesDto.toString();
+		long id = tokenUtil.decodeToken(redisUtil.getMap("token"));		
+		if (notesDto.getTitle().isEmpty() && notesDto.getDiscription().isEmpty())
+		{
+			throw new UserException("Title and Discription is empty");
+		}
+		Note note = modelMapper.map(notesDto, Note.class);
+		Optional<User> user = userRepositary.findByuserId(user.get().getUserId());
+		user.get().getNotes().add(note);
+//		note.setUserId(id);
+		noteRepository.save(note);
+//		redisUtil.putMap("notes", notes.getId(), notes);
+//		redisTemplate.opsForHash().put(key, user.get().getEmailId(), id);
+		
+		redisUtil.putMap(key,user.get().getEmailId(),Data);
+		
+		Response response = ResponseHelper.statusResponse(200, " note created successfully");
+		return response;
+	}
+	
+	@Override
+	public Response update(NotesDto notesDto, String token, long noteID)
+	{
+		System.out.println("sfdddddddg");
+		long id = tokenUtil.decodeToken(token);
+		System.out.println("userId---->"+id);
+		if (notesDto.getTitle().isEmpty() && notesDto.getDiscription().isEmpty())
+		{
+			throw new UserException("Title and Discription is empty");
+		}
+		
+		Note notes = noteRepository.findByNoteIdAndUserId(noteID, id);
+		notes.setTitle(notesDto.getTitle());
+		notes.setDiscription(notesDto.getDiscription());
+		noteRepository.save(notes);
+//		Optional<User> user = userRepositary.findByuserId(id);
+//		System.out.println("emailId    :"+user.get().getEmailId());
+//		redisTemplate.opsForHash().put(key, notes.getUserId(), id);
+		Response response = ResponseHelper.statusResponse(200, "notes updated");
+		return response;
+	}
+	
+//	@Override
+//	public Response updateNote(NoteDTO noteDto, String token, long noteId) {
+//		if (noteDto.getTitle().isEmpty() && noteDto.getDescription().isEmpty()) {
+//			throw new UserException(-5, "Title and description are empty");
+//		}
+//
+//		long id = userToken.decodeToken(token);
+//		Note note = noteRepository.findByUserIdAndNoteId(id, noteId);
+//		note.setTitle(noteDto.getTitle());
+//		note.setDescription(noteDto.getDescription());
+//		note.setModified(LocalDateTime.now());
+//		noteRepository.save(note);
+//
+//		Response response = ResponseHelper.statusResponse(200,
+//				environment.getProperty("status.notes.updatedSuccessfull"));
+//		return response;
+//	}
+
+
+	@Override
+	public Response trash(String token, long noteId) {
+		long userId = tokenUtil.decodeToken(token);
+		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (notes.isTrash() == false) {
+			notes.setTrash(true);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "Note is in trash");
+			return response;
+
+		} else {
+			notes.setTrash(false);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "note is untrash!!");
+			return response;
+		}
+
+	}
+
+	@Override
+	public Response pin(String token, long noteId) {
+		long userId = tokenUtil.decodeToken(token);
+		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (notes.isPin() == false) {
+			notes.setPin(true);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "Note is pined");
+			return response;
+
+		} else {
+			notes.setPin(false);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "note is unpined!!");
+			return response;
+		}
+
+	}
+
+	@Override
+	public Response archive(String token, long noteId) {
+		long userId = tokenUtil.decodeToken(token);
+		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (notes.isArchive() == false) {
+			notes.setArchive(true);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "Note is archive");
+			return response;
+
+		} else {
+			notes.setArchive(false);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "note is unarchive");
+			return response;
+		}
+
+	}
+
+	@Override
+	public List<Note> getAllNotes(String token) 
+	{
+		long emailId=tokenUtil.decodeToken(token);
+		System.out.println("emailId in serviceImpl----"+token);
+		
+//		
+//		long id = tokenUtil.decodeToken(token);
+//		System.out.println("userId---->"+id);
+//		
+		
+		User user = userRepositary.findById(emailId).get();		
+		List<Note> note = user.getNotes().stream().collect(Collectors.toList());
+		user.getNotes().stream().collect(Collectors.toList())
+		.forEach(System.out::println);
+		return note;
+	}
+
+	@Override
+	public List<NotesDto> getAllArchive(String token) {
+		long userId = tokenUtil.decodeToken(token);
+		List<Note> notes = (List<Note>) noteRepository.findByUserId(userId);
+
+		List<NotesDto> listNotes = new ArrayList<NotesDto>();
+		for (Note userNotes : notes) {
+			NotesDto noteDto = modelMapper.map(userNotes, NotesDto.class);
+			if (userNotes.isArchive() == true && userNotes.isTrash() == false) {
+				listNotes.add(noteDto);
+			}
+
+		}
+		return listNotes;
+	}
+
+	@Override
+	public List<NotesDto> getAllTrash(String token) {
+		long userId = tokenUtil.decodeToken(token);
+		List<Note> notes = (List<Note>) noteRepository.findByUserId(userId);
+		List<NotesDto> listNotes = new ArrayList<NotesDto>();
+		for (Note userNotes : notes) {
+			NotesDto notesDto = modelMapper.map(userNotes, NotesDto.class);
+			if (userNotes.isTrash() == true) {
+				listNotes.add(notesDto);
+			}
+		}
+		return listNotes;
+	}
+
+	@Override
+	public List<NotesDto> getAllPinedNotes(String token) {
+		long userId = tokenUtil.decodeToken(token);
+		List<Note> User = noteRepository.findByUserId(userId);
+		List<NotesDto> list = new ArrayList<NotesDto>();
+		for (Note userNote : User) {
+			NotesDto notesDto = modelMapper.map(userNote, NotesDto.class);
+			if (userNote.isPin() == true) {
+				list.add(notesDto);
+			}
+		}
+		return list;
+	}
+
+	@Override
+	public Response temporarydelete(String token, long noteId) {
+		long userId = tokenUtil.decodeToken(token);
+		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (notes.isTrash() == false) {
+			notes.setTrash(true);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "Note is in trash");
+			return response;
+
+		} else {
+			notes.setTrash(false);
+			noteRepository.save(notes);
+			Response response = ResponseHelper.statusResponse(200, "note is untrash!!");
+			return response;
+		}
+	}
+
+	@Override
+	public Response setColor(String token, long noteId, String color) {
+		long userId = tokenUtil.decodeToken(token);
+		Note notes = noteRepository.findByNoteIdAndUserId(noteId, userId);
+		if (notes == null) {
+			throw new UserException(100, "invalid note or not exist");
+		}
+		notes.setSetcolour(color);
+		noteRepository.save(notes);
+		Response response = ResponseHelper.statusResponse(200, "colour change");
+		return response;
+
+	}
+
+	public Response permanentdelete(String token, long noteId) {
+		long userId = tokenUtil.decodeToken(token);
+		Optional<User> user = userRepositary.findById(userId);
+		Note note = noteRepository.findById(noteId).orElseThrow();
+		System.out.println(note);
+		if (note.isTrash() == true) {
+			((List<Note>) user.get().getNotes()).remove(note);
+			userRepositary.save(user.get());
+			noteRepository.delete(note);
+			Response response = ResponseHelper.statusResponse(200, "note deleted sucessfuly");
+			return response;
+		} else {
+			Response response = ResponseHelper.statusResponse(100, "failed to delet");
+			return response;
+		}
+
+	}
+
+
+	@Override
+	public String getToken(String emailId)
+	{
+		return (String) redisTemplate.opsForHash().get(key, emailId);
+	}
+
+	@Override
+	public String getTokenByuserId(String userId) {
+	
+		return (String) redisTemplate.opsForHash().get(key, userId);
+	}
+
+
+
+	
+	
+	//////////////////////////////////////////////////////
+}
