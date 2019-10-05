@@ -1,9 +1,14 @@
 package com.bridgelabz.fundoo.user.service;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.bridgelabz.fundoo.exception.UserException;
 import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.response.ResponseToken;
@@ -26,5 +31,11 @@ public interface UserService {
 	Response forgetPassword(ForgotDto emailDto);
 
 	Response resetPassword(String token, String password);
+
+	Response uploadImage(String token, MultipartFile imageFile);
+
+	Resource getUploadedImageOfUser(String token) throws MalformedURLException;
+
+	List<String> showProfilePic();
 
 }

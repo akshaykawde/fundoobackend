@@ -43,7 +43,6 @@ INDEX VERSION 1.131+/home/admin94/Videos/FundooRedisCache/.metadata/.plugins/org
 2582506617.index
 2013099059.index
 343057731.index
-1152086600.index
 356037991.index
 3119545606.index
 2570366685.index

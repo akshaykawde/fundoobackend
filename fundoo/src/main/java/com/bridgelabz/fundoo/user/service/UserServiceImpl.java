@@ -1,12 +1,25 @@
 package com.bridgelabz.fundoo.user.service;
 
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.bridgelabz.fundoo.exception.UserException;
 import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.response.ResponseToken;
@@ -49,6 +62,7 @@ public class UserServiceImpl implements UserService {
 
 	@Value("${Key}")
 	private String key;
+	private final Path fileLocation = Paths.get("/home/admin94/Wallpapers/");
 
 	@Override
 	public Response onRegister(RegisterDto userDto) {
@@ -81,6 +95,13 @@ public class UserServiceImpl implements UserService {
 		if (user.isPresent()) {
 			System.out.println("password..." + (loginDto.getPassword()));
 			redistemplate.opsForHash().put(key, loginDto.getEmailId(), tokenUtil.createToken(user.get().getUserId()));
+
+			List<String> array = new ArrayList<String>();
+			array.add(user.get().getEmailId());
+			array.add(user.get().getFirstName());
+			array.add(user.get().getLastName());
+			array.add(user.get().getProfilePic());
+			redistemplate.opsForValue().set(key, array);
 			return authentication(user, loginDto.getPassword());
 
 		} else {
@@ -96,8 +117,6 @@ public class UserServiceImpl implements UserService {
 		if (!alredyPresent.isPresent()) {
 			throw new UserException("user not found");
 		}
-		ResponseToken response = new ResponseToken();
-		long id = alredyPresent.get().getUserId();
 		utility.send(emailId, "confirmation mail", "http://localhost:4200/resetpassword");
 
 		return ResponseHelper.statusResponse(200, "check your Email");
@@ -143,4 +162,39 @@ public class UserServiceImpl implements UserService {
 		return statusResponse;
 	}
 
+	@Override
+	public Response uploadImage(String token, MultipartFile imageFile) {
+		long userId = tokenUtil.decodeToken(token);
+		Optional<User> user = userRepo.findById(userId);
+		if (!user.isPresent()) {
+			throw new UserException(-5, "user is not present");
+		} else {
+			String filename = StringUtils.cleanPath(imageFile.getOriginalFilename());
+			try {
+				Files.copy(imageFile.getInputStream(), fileLocation.resolve(filename),
+						StandardCopyOption.REPLACE_EXISTING);
+				user.get().setProfilePic(filename);
+				userRepo.save(user.get());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return ResponseHelper.statusResponse(200, "profile picture is uploaded");
+		}
+	}
+
+	@Override
+	public Resource getUploadedImageOfUser(String token) throws MalformedURLException {
+		Long id = tokenUtil.decodeToken(token);
+		Optional<User> user = userRepo.findById(id);
+		Path imageFile = fileLocation.resolve(user.get().getProfilePic());
+		Resource resource = new UrlResource(imageFile.toUri());
+		return resource;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> showProfilePic() {
+
+		return (List<String>) redistemplate.opsForValue().get(key);
+	}
 }
