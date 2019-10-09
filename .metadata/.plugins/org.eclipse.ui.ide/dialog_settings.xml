@@ -105,4 +105,8 @@
 		<item value="org.springsource.sts.package:3.9.9.201906181741-RELEASE-e412"/>
 		<item value="org.springsource.sts:3.9.9.201906181741-RELEASE"/>
 	</list>
+	<section name="ChooseWorkspaceDialogSettings">
+		<item key="DIALOG_X_ORIGIN" value="272"/>
+		<item key="DIALOG_Y_ORIGIN" value="111"/>
+	</section>
 </section>

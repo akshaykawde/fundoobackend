@@ -2,8 +2,6 @@ package com.bridgelabz.fundoo.notes.service;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.RequestParam;
-
 import com.bridgelabz.fundoo.notes.dto.NotesDto;
 
 import com.bridgelabz.fundoo.notes.model.Note;

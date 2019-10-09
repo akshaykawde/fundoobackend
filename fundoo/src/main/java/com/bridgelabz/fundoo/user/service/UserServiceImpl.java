@@ -62,6 +62,7 @@ public class UserServiceImpl implements UserService {
 
 	@Value("${Key}")
 	private String key;
+
 	private final Path fileLocation = Paths.get("/home/admin94/Wallpapers/");
 
 	@Override
@@ -93,16 +94,17 @@ public class UserServiceImpl implements UserService {
 		System.out.println(user);
 		ResponseToken response = new ResponseToken();
 		if (user.isPresent()) {
+			String token=tokenUtil.createToken(user.get().getUserId());
 			System.out.println("password..." + (loginDto.getPassword()));
-			redistemplate.opsForHash().put(key, loginDto.getEmailId(), tokenUtil.createToken(user.get().getUserId()));
-
 			List<String> array = new ArrayList<String>();
 			array.add(user.get().getEmailId());
 			array.add(user.get().getFirstName());
 			array.add(user.get().getLastName());
 			array.add(user.get().getProfilePic());
+			
+			
 			redistemplate.opsForValue().set(key, array);
-			return authentication(user, loginDto.getPassword());
+			return authentication(user, loginDto.getPassword(),loginDto.getEmailId(),token);
 
 		} else {
 
@@ -135,12 +137,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public ResponseToken authentication(Optional<User> user, String password) {
+	public ResponseToken authentication(Optional<User> user, String password,String emailId, String token ) {
 		ResponseToken response = new ResponseToken();
 		if (user.get().isVerify()) {
 			boolean status = passwordEncoder.matches(password, user.get().getPassword());
 			if (status == true) {
-				String token = tokenUtil.createToken(user.get().getUserId());
 				redisUtil.putMap("token", token);
 			}
 			response.setStatusCode(200);
@@ -163,8 +164,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Response uploadImage(String token, MultipartFile imageFile) {
-		long userId = tokenUtil.decodeToken(token);
+	public Response uploadImage(MultipartFile imageFile) {
+		long userId = tokenUtil.decodeToken(redisUtil.getMap("token"));
 		Optional<User> user = userRepo.findById(userId);
 		if (!user.isPresent()) {
 			throw new UserException(-5, "user is not present");
@@ -183,8 +184,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Resource getUploadedImageOfUser(String token) throws MalformedURLException {
-		Long id = tokenUtil.decodeToken(token);
+	public Resource getUploadedImageOfUser() throws MalformedURLException {
+		long id = tokenUtil.decodeToken(redisUtil.getMap("token"));
+//		Long id = tokenUtil.decodeToken(token);
 		Optional<User> user = userRepo.findById(id);
 		Path imageFile = fileLocation.resolve(user.get().getProfilePic());
 		Resource resource = new UrlResource(imageFile.toUri());
@@ -197,4 +199,5 @@ public class UserServiceImpl implements UserService {
 
 		return (List<String>) redistemplate.opsForValue().get(key);
 	}
+
 }

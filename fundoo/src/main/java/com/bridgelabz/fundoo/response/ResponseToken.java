@@ -28,6 +28,6 @@ public class ResponseToken {
 	public String toString() {
 		return "ResponseToken [statusMessage=" + statusMessage + ", statusCode=" + statusCode + ", token=" + token
 				+ "]";
-	}
 	
+}
 }

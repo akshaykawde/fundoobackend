@@ -3,12 +3,8 @@ package com.bridgelabz.fundoo.user.dto;
 import javax.persistence.Column;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-import lombok.Data;
-
-@Data
 public class LoginDTO {
 	@NotNull
 	@Email(regexp = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.(?:[A-Z]{2,}|com|org))+$")
@@ -16,7 +12,7 @@ public class LoginDTO {
 	@NotNull
 	@Column(name = "password")
 	private String password;
-	
+
 	public String getEmailId() {
 		return emailId;
 	}

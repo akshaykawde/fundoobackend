@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.fundoo.exception.UserException;
-import com.bridgelabz.fundoo.notes.dto.NotesDto;
 import com.bridgelabz.fundoo.response.Response;
 import com.bridgelabz.fundoo.response.ResponseToken;
 import com.bridgelabz.fundoo.user.dto.ForgotDto;
@@ -85,9 +83,9 @@ public class UserController {
 	}
 
 	@PostMapping("/uploadImage")
-	public ResponseEntity<Response> uploadImage(@RequestHeader String token, @RequestParam MultipartFile imageFile)
+	public ResponseEntity<Response> uploadImage(@RequestParam MultipartFile imageFile)
 			throws IOException {
-		Response response = userService.uploadImage(token, imageFile);
+		Response response = userService.uploadImage(imageFile);
 		return new ResponseEntity<Response>(response, HttpStatus.OK);
 
 	}
@@ -98,9 +96,9 @@ public class UserController {
 		return pic;
 	}
 
-	@GetMapping("/getuploadedimage/{token}")
-	public ResponseEntity<Resource> getProfilePic(@PathVariable String token) throws MalformedURLException {
-		Resource resourseStatus = userService.getUploadedImageOfUser(token);
+	@GetMapping("/getuploadedimage")
+	public ResponseEntity<Resource> getProfilePic() throws MalformedURLException {
+		Resource resourseStatus = userService.getUploadedImageOfUser();
 		return new ResponseEntity<Resource>(resourseStatus, HttpStatus.OK);
 	}
 

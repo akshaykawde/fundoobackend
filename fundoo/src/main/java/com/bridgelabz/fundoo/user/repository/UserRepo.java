@@ -11,10 +11,7 @@ import com.bridgelabz.fundoo.user.model.User;
 @Repository
 public interface UserRepo extends JpaRepository<User, Long> {
 	public Optional<User> findByEmailId(String EmailId);
+
 	public Optional<User> findByuserId(Long Id);
 
-//	public Optional<User>findById(long userId);
-	//public void save(Object object);
-	
-	
 }

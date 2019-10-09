@@ -26,4 +26,9 @@ public class RedisUtil<T> {
 		return ValueOperations.get(redisKey);
 	}
 
+	public void getValue(String token) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

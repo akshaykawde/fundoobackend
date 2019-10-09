@@ -1,10 +1,6 @@
 package com.bridgelabz.fundoo.notes.dto;
 
 import javax.validation.constraints.NotNull;
-
-import lombok.Data;
-
-@Data
 public class NotesDto {
 	@NotNull
 	private String title;

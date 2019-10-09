@@ -25,17 +25,19 @@ public interface UserService {
 
 	Response validateEmailId(String token) throws UserException;
 
-	ResponseToken authentication(Optional<User> user, String password)
-			throws UnsupportedEncodingException, UserException;
+//	ResponseToken authentication(Optional<User> user, String password)
+//			throws UnsupportedEncodingException, UserException;
 
 	Response forgetPassword(ForgotDto emailDto);
 
 	Response resetPassword(String token, String password);
 
-	Response uploadImage(String token, MultipartFile imageFile);
+	Response uploadImage(MultipartFile imageFile);
 
-	Resource getUploadedImageOfUser(String token) throws MalformedURLException;
+	Resource getUploadedImageOfUser() throws MalformedURLException;
 
 	List<String> showProfilePic();
+
+	ResponseToken authentication(Optional<User> user, String password, String emailId, String token);
 
 }
