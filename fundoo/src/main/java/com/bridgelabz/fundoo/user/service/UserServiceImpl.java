@@ -71,9 +71,9 @@ public class UserServiceImpl implements UserService {
 		User user = modelMapper.map(userDto, User.class);
 		System.out.println("user email is--->" + user.getEmailId());
 		Optional<User> alreadyPresent = userRepo.findByEmailId(user.getEmailId());
-		if (alreadyPresent.isPresent()) {
-			throw new UserException("emailExistError");
-		}
+//		if (alreadyPresent.isPresent()) {
+//			throw new UserException("emailExistError");
+//		}
 		String password = passwordEncoder.encode(userDto.getPassword());
 		user.setPassword(password);
 		user = userRepo.save(user);
@@ -94,17 +94,16 @@ public class UserServiceImpl implements UserService {
 		System.out.println(user);
 		ResponseToken response = new ResponseToken();
 		if (user.isPresent()) {
-			String token=tokenUtil.createToken(user.get().getUserId());
+			String token = tokenUtil.createToken(user.get().getUserId());
 			System.out.println("password..." + (loginDto.getPassword()));
 			List<String> array = new ArrayList<String>();
 			array.add(user.get().getEmailId());
 			array.add(user.get().getFirstName());
 			array.add(user.get().getLastName());
 			array.add(user.get().getProfilePic());
-			
-			
+
 			redistemplate.opsForValue().set(key, array);
-			return authentication(user, loginDto.getPassword(),loginDto.getEmailId(),token);
+			return authentication(user, loginDto.getPassword(), loginDto.getEmailId(), token);
 
 		} else {
 
@@ -137,7 +136,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public ResponseToken authentication(Optional<User> user, String password,String emailId, String token ) {
+	public ResponseToken authentication(Optional<User> user, String password, String emailId, String token) {
 		ResponseToken response = new ResponseToken();
 		if (user.get().isVerify()) {
 			boolean status = passwordEncoder.matches(password, user.get().getPassword());
@@ -146,7 +145,6 @@ public class UserServiceImpl implements UserService {
 			}
 			response.setStatusCode(200);
 			response.setStatusMessage("user.login");
-
 			response.setToken(redisUtil.getMap("token"));
 			return response;
 		}

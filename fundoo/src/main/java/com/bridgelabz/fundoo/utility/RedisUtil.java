@@ -27,7 +27,7 @@ public class RedisUtil<T> {
 	}
 
 	public void getValue(String token) {
-		// TODO Auto-generated method stub
+
 		
 	}
 
